@@ -156,11 +156,17 @@
       return {field: 'fullText', text: text.slice(0, MAX_TEXT), truncated: text.length > MAX_TEXT};
     }
     if (rec.db === 'ClinicalTrials.gov' && rec.hasResults) {
-      const data = await getJson(CTGOV + '/' + encodeURIComponent(rec.id) + '?fields=ResultsSection');
+      const data = await studyById(rec.id, 'NCTId,ResultsSection');
       const text = resultsText(data.resultsSection || {});
       return {field: 'results', text: text.slice(0, MAX_TEXT), truncated: text.length > MAX_TEXT};
     }
     fail(rec.kind === 'trial' ? 'לרישום זה אין תוצאות שפורסמו ב־ClinicalTrials.gov' : 'אין טקסט מלא בגישה פתוחה למאמר זה');
+  }
+
+  // The single-study endpoint lacks CORS headers on hosted origins; the search endpoint allows them.
+  async function studyById(nct, fields) {
+    const data = await getJson(CTGOV + '?' + new URLSearchParams({'filter.ids': nct, fields}));
+    return data.studies?.[0] || fail('הניסוי ' + nct + ' לא נמצא');
   }
 
   function resultsText(r) {
@@ -188,7 +194,7 @@
     return paperRecord(p, 'Linked record ' + id);
   }
   async function trialById(nct) {
-    return trialRecord(await getJson(CTGOV + '/' + encodeURIComponent(nct) + '?fields=' + CT_FIELDS), 'Linked record ' + nct);
+    return trialRecord(await studyById(nct, CT_FIELDS), 'Linked record ' + nct);
   }
   const byId = id => /^NCT\d{8}$/.test(id) ? trialById(id) : /^(PMID|PPR):[\w]+$/.test(id) ? paperById(id) : fail('אין אפשרות לטעון אוטומטית את ' + id);
 

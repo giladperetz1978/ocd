@@ -180,11 +180,17 @@
     if (!Object.values(dbs).some(Boolean)) fail('בחרו לפחות מאגר אחד.');
     return {terms, age: $('ageFilter').value, dbs};
   }
+  // CTIS only allows cross-origin requests from its own site; it works from a local file but not from a hosted origin.
+  const CTIS_OK = location.protocol === 'file:';
+  if (!CTIS_OK) {
+    $('dbCtis').checked = false; $('dbCtis').disabled = true;
+    $('dbCtis').parentElement.append(' — ', h('small', {}, 'לא זמין באתר המקוון (המאגר חוסם גישה חיצונית). ', link('חיפוש ידני ב־CTIS', 'https://euclinicaltrials.eu/search-for-clinical-trials/?lang=en'), ' או פתיחת הקובץ index.html מקומית.'));
+  }
   function connectors(spec) {
     return [
       (spec.dbs.epmc || spec.dbs.ppr) && {key: 'epmc', label: 'Europe PMC', run: c => sources.europePmc(spec.terms, {peerReviewed: spec.dbs.epmc, preprints: spec.dbs.ppr, age: spec.age, cursor: c || '*'})},
       spec.dbs.ct && {key: 'ct', label: 'ClinicalTrials.gov', run: c => sources.clinicalTrials(spec.terms, {age: spec.age, cursor: c})},
-      spec.dbs.ctis && {key: 'ctis', label: 'EU CTIS', run: c => sources.ctis(spec.terms, {age: spec.age, cursor: c || 1})}
+      spec.dbs.ctis && CTIS_OK && {key: 'ctis', label: 'EU CTIS', run: c => sources.ctis(spec.terms, {age: spec.age, cursor: c || 1})}
     ].filter(Boolean);
   }
   const statusLine = (c, r) => c.label + ': ' + (r.status === 'fulfilled' ? r.value.items.length + ' רשומות' + (r.value.total ? ' (סה״כ במאגר: ' + r.value.total + ')' : '') + (r.value.note ? ' — ' + r.value.note : '') : 'נכשל — ' + r.reason.message);
