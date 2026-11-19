@@ -272,7 +272,7 @@
     const ext = rec.extraction;
     const verified = ext ? Object.values(ext.fields).filter(f => f.status === 'ok').length : 0;
     const status = [
-      rec.fullText ? 'טקסט מלא נטען (' + rec.fullText.length.toLocaleString() + ' תווים' + (rec.fullTextTruncated ? ', נחתך' : '') + ')' : rec.openAccess ? 'טקסט מלא בגישה פתוחה — זמין לטעינה' : rec.kind !== 'trial' ? 'תקציר בלבד (הטקסט המלא אינו בגישה פתוחה)' : null,
+      rec.fullText ? 'טקסט מלא נטען (' + rec.fullText.length.toLocaleString() + ' תווים' + (rec.fullTextTruncated ? ', נחתך' : '') + ')' : rec.pmcid ? (rec.openAccess ? 'טקסט מלא בגישה פתוחה — זמין לטעינה' : 'עותק ב־PMC — ניתן לנסות לטעון טקסט מלא') : rec.kind !== 'trial' ? 'תקציר בלבד (אין עותק מלא ב־PMC)' : null,
       rec.results ? 'תוצאות הרישום נטענו' : rec.hasResults ? 'יש תוצאות ברישום — זמינות לטעינה' : null,
       ext ? 'חילוץ: ' + verified + '/' + FIELDS.length + ' שדות אומתו בציטוט' + (rec.fullTextAt && rec.fullTextAt > ext.at ? ' (בוצע לפני טעינת הטקסט המלא)' : '') : 'טרם חולצו נתונים',
       rec.linksAt ? 'קישורים: ' + (rec.links?.length || 0) : null
@@ -296,7 +296,7 @@
       rec.authors ? h('small', {text: rec.authors.slice(0, 200) + (rec.journal ? ' — ' + rec.journal : '')}) : null,
       h('p', {class: 'source-note', text: status}),
       h('div', {class: 'bar'},
-        ((rec.openAccess && rec.pmcid) || rec.hasResults) ? btn(rec.kind === 'trial' ? 'טעינת תוצאות הרישום' : 'טעינת טקסט מלא', async () => { say('libStatus', 'טוען…'); await loadFull(rec); say('libStatus', 'נטען עבור ' + rec.id + '.'); }) : null,
+        (rec.pmcid || rec.hasResults) ? btn(rec.kind === 'trial' ? 'טעינת תוצאות הרישום' : 'טעינת טקסט מלא', async () => { say('libStatus', 'טוען…'); await loadFull(rec); say('libStatus', 'נטען עבור ' + rec.id + '.'); }) : null,
         btn('איתור פרסומים וניסויים מקושרים', async () => { say('libStatus', 'מחפש קישורים…'); const r = await findLinks(rec); say('libStatus', 'נמצאו ' + r.links.length + ' קישורים עבור ' + rec.id + '.'); }),
         btn(ext ? 'חילוץ מחדש (AI)' : 'חילוץ נתונים מובנה (AI)', async () => { say('libStatus', 'מחלץ נתונים מ־' + rec.id + '…'); await extract(rec); say('libStatus', 'החילוץ הושלם עבור ' + rec.id + '.'); }),
         btn('הסרה מהספרייה', async () => { if (!await ask('להסיר את ' + rec.id + ' מהספרייה?')) return; await store.del('sources', rec.key); state.lib.delete(rec.id); updateCounts(); })),
@@ -319,7 +319,7 @@
     }
     say('libStatus', label + ' הסתיים: ' + (items.length - errors.length) + ' הצליחו' + (errors.length ? '. נכשלו: ' + errors.join('; ') : '.'));
   }
-  work('fullIncluded', 'libStatus', () => bulk('טעינה', r => (r.openAccess && r.pmcid && !r.fullText) || (r.hasResults && !r.results), loadFull));
+  work('fullIncluded', 'libStatus', () => bulk('טעינה', r => (r.pmcid && !r.fullText) || (r.hasResults && !r.results), loadFull));
   work('linkIncluded', 'libStatus', () => bulk('איתור קישורים', () => true, findLinks));
   work('extractIncluded', 'libStatus', () => bulk('חילוץ', r => !r.extraction, extract));
 

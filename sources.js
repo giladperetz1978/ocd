@@ -138,22 +138,29 @@
     return {items, next: data.pagination?.nextPage ? cursor + 1 : null, total: data.pagination?.totalRecords || 0, note: items.length + ' מתוך ' + all.length + ' ניסויי OCD בעמוד תאמו למונחים'};
   }
 
+  function jatsBody(xml) {
+    const doc = new DOMParser().parseFromString(xml, 'text/xml');
+    if (doc.querySelector('parsererror')) return '';
+    for (const n of doc.querySelectorAll('ref-list, table-wrap-foot, fig, xref')) n.remove();
+    const body = doc.querySelector('article body') || doc.querySelector('body');
+    if (!body) return '';
+    const parts = [...body.querySelectorAll('sec')].filter(s => !s.parentElement?.closest('sec')).map(s => clean(s.textContent));
+    return (parts.length ? parts : [clean(body.textContent)]).join('\n\n');
+  }
+
   async function fullText(rec) {
-    if (rec.kind !== 'trial' && rec.openAccess && rec.pmcid) {
-      let xml;
-      try { xml = await http(EPMC + encodeURIComponent(rec.pmcid) + '/fullTextXML', {}, 120000).then(r => r.text()); }
-      catch (e) { fail('Europe PMC לא סיפק טקסט מלא (' + e.message + '). אפשר לפתוח את המאמר מהקישור'); }
-      const doc = new DOMParser().parseFromString(xml, 'text/xml');
-      if (doc.querySelector('parsererror')) fail('הטקסט המלא שהתקבל אינו XML תקין');
-      for (const n of doc.querySelectorAll('ref-list, table-wrap-foot, fig, xref')) n.remove();
-      const parts = [];
-      for (const sec of doc.querySelectorAll('body sec')) {
-        if (sec.parentElement?.closest('sec')) continue;
-        parts.push(clean(sec.textContent));
+    if (rec.kind !== 'trial' && rec.pmcid) {
+      // NCBI E-utilities send CORS headers for hosted origins; Europe PMC's full-text endpoint does not.
+      const sourcesToTry = [
+        () => http('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?' + new URLSearchParams({db: 'pmc', id: rec.pmcid.replace(/^PMC/i, ''), retmode: 'xml'}), {}, 90000).then(r => r.text()),
+        () => http(EPMC + encodeURIComponent(rec.pmcid) + '/fullTextXML', {}, 120000).then(r => r.text())
+      ];
+      for (const get of sourcesToTry) {
+        let text = '';
+        try { text = jatsBody(await get()); } catch { continue; }
+        if (text) return {field: 'fullText', text: text.slice(0, MAX_TEXT), truncated: text.length > MAX_TEXT};
       }
-      const text = (parts.length ? parts : [clean(doc.querySelector('body')?.textContent)]).join('\n\n');
-      if (!text) fail('לא נמצא גוף מאמר בטקסט המלא');
-      return {field: 'fullText', text: text.slice(0, MAX_TEXT), truncated: text.length > MAX_TEXT};
+      fail('הטקסט המלא אינו זמין להורדה (ייתכן שההוצאה לאור אינה מתירה). אפשר לפתוח את המאמר מהקישור');
     }
     if (rec.db === 'ClinicalTrials.gov' && rec.hasResults) {
       const data = await studyById(rec.id, 'NCTId,ResultsSection');
