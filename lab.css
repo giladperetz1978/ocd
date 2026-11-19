@@ -16,6 +16,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .card{margin:.6rem 0;overflow-wrap:anywhere}.grid .card{margin:0}.card h3{font-size:1.05rem;margin:.3rem 0}.card.preprint{border-inline-start-color:#b07a12}
 .pre,details p{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.92em;max-height:24rem;overflow:auto}
 summary{cursor:pointer}.source-note{font-size:.92em;color:#3d5c61}.links{margin:.3rem 0;padding-inline-start:1.2rem}.links li{margin:.2rem 0}.links button{padding:.15rem .5rem;font-size:.85em}
+#advanced>summary,#connection>summary{padding:.65rem 0;color:#175c54;font-weight:600}#quick>small{display:block;margin:.5rem 0}
 .badge-new{display:inline-block;background:#fff1c9;color:#5c3d00;border-radius:.3rem;padding:0 .4rem;margin:.2rem 0}
 .tablewrap{overflow:auto;max-width:100%;border:1px solid #cad7d2;border-radius:.5rem;background:#fff}
 table{border-collapse:collapse;width:100%;font-size:.9rem}caption{text-align:start;padding:.4rem;font-weight:600}
@@ -28,4 +29,4 @@ td.st-bad{background:#fff0ee;color:#7a1f12}td.st-nr{color:#6b7f80}td.st-ai{backg
 .alert{background:#fff;border:1px solid #cad7d2;border-radius:.5rem;padding:.4rem .7rem}
 [hidden]{display:none!important}
 .modal{border:1px solid #90a8aa;border-radius:.8rem;padding:1.2rem 1.4rem;max-width:min(32rem,92vw);color:#162f38}.modal::backdrop{background:rgba(10,30,35,.45)}.modal input{display:block;width:100%;margin:.4rem 0}
-@media print{body.print-summary{background:#fff;padding:0;max-width:none}body.print-summary main>*:not(#clinician),body.print-summary #clinician>*:not(#summary){display:none!important}body.print-summary #clinician,body.print-summary #summary{border:0;padding:0;margin:0}body.print-summary a{color:#000}}
+@media print{body.print-summary{background:#fff;padding:0;max-width:none}body.print-summary main>*:not(#advanced),body.print-summary #advanced>*:not(#clinician),body.print-summary #clinician>*:not(#summary){display:none!important}body.print-summary #clinician,body.print-summary #summary{border:0;padding:0;margin:0}body.print-summary a{color:#000}}

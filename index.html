@@ -10,16 +10,23 @@ h1,h2,h3{line-height:1.3}header,section,article{background:white;border:1px soli
 <link rel="stylesheet" href="lab.css?v=dev">
 <main>
 <div class="mast"><small>OCD  /  EVIDENCE LAB</small><h1>מעבדת מחקר ל־OCD וחרדה</h1><p>מהשאלה, דרך המקורות, ועד למסקנה שאפשר לבדוק.</p></div>
+<section id="quick"><h2>מה תרצו לחקור?</h2>
+<label for="question">שאלת מחקר — ללא פרטים מזהים</label><textarea id="question" maxlength="800" rows="2" placeholder="למשל: מה ידוע על הפוגה ב־OCD אצל בני נוער אחרי שנה או יותר?"></textarea>
+<p>אפשר לציין גיל בשאלה. אם לא צוין גיל, הממצאים יוצגו לפי אוכלוסיית המחקר.</p>
+<button id="quickRun" class="primary" disabled>חקור וסכם</button>
+<small>השאלה והמקורות הציבוריים נשלחים ל־Google; מונחי החיפוש נשלחים למאגרים. השימוש ב־Gemini עשוי להיות כרוך בעלות.</small>
+<p id="quickStatus" role="status"></p><div id="quickAnswer"></div>
+<details id="connection"><summary>הגדרות חיבור ל־Gemini</summary></details></section>
+<details id="advanced"><summary>כלי מחקר מתקדמים ופרויקטים</summary>
 <div class="projectbar" role="group" aria-label="פרויקט מחקר">
 <label for="project">פרויקט</label><select id="project"></select>
 <button id="newProject">פרויקט חדש</button><button id="renameProject">שינוי שם</button><button id="deleteProject">מחיקת פרויקט</button>
 <span class="spacer"></span><button id="exportBackup">גיבוי כל המחקר (JSON)</button><label class="filebtn">שחזור מגיבוי<input id="importBackup" type="file" accept="application/json,.json"></label>
 <span id="storageState" role="status"></span></div>
 <nav id="desk" aria-label="סביבת עבודה">
-<button data-pane="research">01 · איתור</button><button data-pane="library">02 · ספרייה <span id="libCount" class="badge"></span></button><button data-pane="table">03 · טבלת ראיות</button><button data-pane="analysis">04 · הצלבה ודוח</button><button data-pane="alerts">05 · התראות <span id="alertCount" class="badge"></span></button><button data-pane="clinician">06 · סיכום לצוות המטפל</button><button data-pane="settings">הגדרות AI</button><button data-pane="archive">מחברת הפתיחה</button></nav>
+<button data-pane="research">01 · איתור</button><button data-pane="library">02 · ספרייה <span id="libCount" class="badge"></span></button><button data-pane="table">03 · טבלת ראיות</button><button data-pane="analysis">04 · הצלבה ודוח</button><button data-pane="alerts">05 · התראות <span id="alertCount" class="badge"></span></button><button data-pane="clinician">06 · סיכום לצוות המטפל</button><button data-pane="archive">מחברת הפתיחה</button></nav>
 
 <section id="research"><small>DISCOVERY / 01</small><h2>חיפוש מאמרים, פרסומים מוקדמים וניסויים</h2>
-<label for="question">שאלת המחקר של הפרויקט — ללא פרטים אישיים</label><textarea id="question" maxlength="800" rows="2"></textarea>
 <button id="suggest">שליחת השאלה ל־Gemini לניסוח מילות חיפוש</button>
 <label for="terms">מונחי חיפוש באנגלית (נוספים ל־OCD)</label><input id="terms" dir="ltr" maxlength="300" value="remission">
 <fieldset class="opts"><legend>מאגרים</legend>
@@ -106,7 +113,7 @@ h1,h2,h3{line-height:1.3}header,section,article{background:white;border:1px soli
 <li>לרשום לכל קבוצה: גיל, חומרת בסיס, מה ניתן במקביל, קבוצת השוואה, מספר שהתחילו ושסיימו, נזקים ומשך המעקב. שדה שלא דווח מסומן ״לא ידוע״, לא אפס.</li>
 <li>לתעד בנפרד חומרת OCD, חרדה, תפקוד והישנות. לחפש גם תוצאות לאחר שנה ושנתיים ושחזור בידי קבוצה עצמאית. קשר סטטיסטי אינו הוכחה לסיבה או להתאמת טיפול לאדם מסוים.</li>
 </ol><p>זו נקודת פתיחה נבחרת, לא סקירה שיטתית מלאה ולא כלי לקבלת החלטות טיפוליות.</p></section>
-</div></main>
+</div></details></main>
 <script>
 const topic=document.querySelector('#topic'), age=document.querySelector('#age');
 let requestVersion=0;
