@@ -1,0 +1,31 @@
+body{max-width:84rem;background:#edf3f3;color:#162f38;padding:clamp(.65rem,3vw,2.4rem)}
+.mast{padding:clamp(1.2rem,4vw,3rem);background:linear-gradient(115deg,#113848,#185b61);color:#fff;border-radius:1.2rem}.mast small{color:#acf0d8;letter-spacing:.18em}.mast h1{font-size:clamp(1.7rem,5vw,3.2rem);margin:.35em 0}.mast p{margin:0}
+.projectbar{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;margin:1rem 0;padding:.6rem .9rem;background:#fff;border:1px solid #cad7d2;border-radius:.7rem}.projectbar label{margin:0}.projectbar select{width:auto;min-width:12rem}.spacer{flex:1}
+.filebtn{display:inline-block;font-weight:400;border:1px solid #90a8aa;border-radius:.45rem;padding:.45rem .8rem;background:#fff;cursor:pointer}.filebtn input{position:absolute;opacity:0;width:1px;height:1px}.filebtn:focus-within{outline:3px solid #a95009}
+#desk,.bar{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;margin:.8rem 0}
+button,input,textarea,select{font:inherit;border:1px solid #90a8aa;border-radius:.45rem;padding:.45rem .8rem}button{background:white;color:#153a42;cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}button:hover:not(:disabled){border-color:#166759}
+.primary,#desk [aria-current="page"]{background:#175c54;color:white}
+label{display:block;font-weight:600;margin-top:.85rem}.bar label,.opts label,label.inc{display:inline-flex;align-items:center;gap:.35rem;margin:0;font-weight:400}
+#question,#terms,#apiKey,#pass,#model,#ageFilter,.card textarea,.card input:not([type=checkbox]){display:block;width:100%;margin:.3rem 0 .65rem}
+.bar input:not([type=checkbox]){width:auto;flex:1 1 14rem}.short{max-width:6rem;flex:0 0 6rem!important}
+textarea{resize:vertical}p[role=status],span[role=status]{color:#125c59;font-weight:600}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible,td:focus-visible,summary:focus-visible{outline:3px solid #a95009;outline-offset:1px}
+.opts{border:1px solid #cad7d2;border-radius:.5rem;margin:.8rem 0;display:flex;flex-wrap:wrap;gap:.4rem 1.4rem}.opts legend{font-weight:600}
+.badge{background:#c4ece0;color:#0d3d38;border-radius:1rem;padding:0 .45rem;font-size:.8em}.badge:empty{display:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,22rem),1fr));gap:.65rem}
+.card{margin:.6rem 0;overflow-wrap:anywhere}.grid .card{margin:0}.card h3{font-size:1.05rem;margin:.3rem 0}.card.preprint{border-inline-start-color:#b07a12}
+.pre,details p{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.92em;max-height:24rem;overflow:auto}
+summary{cursor:pointer}.source-note{font-size:.92em;color:#3d5c61}.links{margin:.3rem 0;padding-inline-start:1.2rem}.links li{margin:.2rem 0}.links button{padding:.15rem .5rem;font-size:.85em}
+.badge-new{display:inline-block;background:#fff1c9;color:#5c3d00;border-radius:.3rem;padding:0 .4rem;margin:.2rem 0}
+.tablewrap{overflow:auto;max-width:100%;border:1px solid #cad7d2;border-radius:.5rem;background:#fff}
+table{border-collapse:collapse;width:100%;font-size:.9rem}caption{text-align:start;padding:.4rem;font-weight:600}
+th,td{border:1px solid #d5e1df;padding:.35rem .45rem;vertical-align:top;text-align:start;min-width:7rem;max-width:22rem}thead th{position:sticky;top:0;background:#e3efed}
+.sort{border:0;background:none;padding:0;font-weight:700;text-align:start}.tt{font-weight:400;font-size:.88em;color:#3d5c61}
+td.st-bad{background:#fff0ee;color:#7a1f12}td.st-nr{color:#6b7f80}td.st-ai{background:#f4f1ff}.mk{font-weight:700}td.st-ok .mk{color:#127046}
+.caution{background:#fff6e5;border:1px solid #f0d9a8;padding:.6rem .8rem;border-radius:.5rem}
+.finding{border-inline-start:4px solid #127046;padding:.2rem .8rem;margin:.6rem 0;background:#f6fbf9}.finding.partial{border-color:#b07a12;background:#fffaf0}.finding.bad{border-color:#b3261e;background:#fff3f1}
+.evidence{font-size:.9em;margin:.2rem 0}.evidence li.bad{color:#7a1f12}.evidence q{font-style:italic}
+.alert{background:#fff;border:1px solid #cad7d2;border-radius:.5rem;padding:.4rem .7rem}
+[hidden]{display:none!important}
+.modal{border:1px solid #90a8aa;border-radius:.8rem;padding:1.2rem 1.4rem;max-width:min(32rem,92vw);color:#162f38}.modal::backdrop{background:rgba(10,30,35,.45)}.modal input{display:block;width:100%;margin:.4rem 0}
+@media print{body.print-summary{background:#fff;padding:0;max-width:none}body.print-summary main>*:not(#clinician),body.print-summary #clinician>*:not(#summary){display:none!important}body.print-summary #clinician,body.print-summary #summary{border:0;padding:0;margin:0}body.print-summary a{color:#000}}

@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מעבדת מחקר | OCD</title>
+<style>
+*{box-sizing:border-box}body{font:1.08rem/1.65 system-ui,sans-serif;background:#f4f7f5;color:#182e30;margin:auto;max-width:60rem;padding:1rem}
+h1,h2,h3{line-height:1.3}header,section,article{background:white;border:1px solid #cad7d2;border-radius:.7rem;padding:1rem 1.4rem;margin:.9rem 0}article{border-inline-start:5px solid #427266}small{color:#405953}a{color:#005d72}select{font:inherit;padding:.35rem;max-width:100%}nav a{display:inline-block;margin-inline-end:1rem}a:focus-visible,select:focus-visible{outline:3px solid #af5a00} 
+</style>
+<link rel="stylesheet" href="lab.css">
+<main>
+<div class="mast"><small>OCD  /  EVIDENCE LAB</small><h1>מעבדת מחקר ל־OCD וחרדה</h1><p>מהשאלה, דרך המקורות, ועד למסקנה שאפשר לבדוק.</p></div>
+<div class="projectbar" role="group" aria-label="פרויקט מחקר">
+<label for="project">פרויקט</label><select id="project"></select>
+<button id="newProject">פרויקט חדש</button><button id="renameProject">שינוי שם</button><button id="deleteProject">מחיקת פרויקט</button>
+<span class="spacer"></span><button id="exportBackup">גיבוי כל המחקר (JSON)</button><label class="filebtn">שחזור מגיבוי<input id="importBackup" type="file" accept="application/json,.json"></label>
+<span id="storageState" role="status"></span></div>
+<nav id="desk" aria-label="סביבת עבודה">
+<button data-pane="research">01 · איתור</button><button data-pane="library">02 · ספרייה <span id="libCount" class="badge"></span></button><button data-pane="table">03 · טבלת ראיות</button><button data-pane="analysis">04 · הצלבה ודוח</button><button data-pane="alerts">05 · התראות <span id="alertCount" class="badge"></span></button><button data-pane="clinician">06 · סיכום לצוות המטפל</button><button data-pane="settings">הגדרות AI</button><button data-pane="archive">מחברת הפתיחה</button></nav>
+
+<section id="research"><small>DISCOVERY / 01</small><h2>חיפוש מאמרים, פרסומים מוקדמים וניסויים</h2>
+<label for="question">שאלת המחקר של הפרויקט — ללא פרטים אישיים</label><textarea id="question" maxlength="800" rows="2"></textarea>
+<button id="suggest">שליחת השאלה ל־Gemini לניסוח מילות חיפוש</button>
+<label for="terms">מונחי חיפוש באנגלית (נוספים ל־OCD)</label><input id="terms" dir="ltr" maxlength="300" value="remission">
+<fieldset class="opts"><legend>מאגרים</legend>
+<label><input type="checkbox" id="dbEpmc" checked> Europe PMC (PubMed)</label>
+<label><input type="checkbox" id="dbPpr" checked> פרסומים מוקדמים (preprints)</label>
+<label><input type="checkbox" id="dbCt" checked> ClinicalTrials.gov</label>
+<label><input type="checkbox" id="dbCtis" checked> מאגר הניסויים של האיחוד האירופי (CTIS)</label></fieldset>
+<label for="ageFilter">אוכלוסייה</label><select id="ageFilter"><option value="">כל הגילים</option><option value="child">ילדים ובני נוער</option><option value="adult">מבוגרים</option></select>
+<div class="bar"><button id="discover" class="primary">חיפוש</button><button id="saveSearch">שמירת החיפוש כהתראה</button></div>
+<p class="source-note">סינון הגיל ב־ClinicalTrials.gov מבוסס על שדה הגיל ברישום. במאמרים וב־CTIS הסינון מקורב (מילים בכותרת ובתקציר / קבוצת הגיל ברישום). מאגר WHO ICTRP אינו מציע ממשק ציבורי — <a href="https://trialsearch.who.int/" target="_blank" rel="noopener noreferrer">חיפוש ידני ב־ICTRP</a> משלים ניסויים מסין, איראן, הודו, יפן ועוד.</p>
+<p id="discoverStatus" role="status"></p><div id="more" class="bar"></div><div id="hits" class="grid"></div></section>
+
+<section id="library" hidden><small>LIBRARY / 02</small><h2>ספריית המקורות של הפרויקט</h2>
+<p>הספרייה נשמרת בדפדפן זה (IndexedDB) ושורדת רענון. סמנו ״כלול בניתוח״ למקורות שיישלחו להצלבה. טקסט מלא זמין רק למאמרים בגישה פתוחה; תוצאות מספריות זמינות רק לניסויים שהעלו תוצאות ל־ClinicalTrials.gov.</p>
+<div class="bar"><input id="libFilter" placeholder="סינון לפי כותרת, הערה או תגית"><select id="libKind" aria-label="סוג מקור"><option value="">כל הסוגים</option><option value="paper">מאמרים</option><option value="preprint">פרסומים מוקדמים</option><option value="trial">ניסויים</option></select><label><input type="checkbox" id="libIncluded"> רק מקורות שכלולים בניתוח</label></div>
+<div class="bar"><button id="extractIncluded">חילוץ נתונים מובנה לכל הכלולים שטרם חולצו</button><button id="fullIncluded">טעינת טקסט מלא / תוצאות לכל הכלולים</button><button id="linkIncluded">איתור קישורים לכל הכלולים</button></div>
+<p id="libStatus" role="status"></p><div id="libList"></div></section>
+
+<section id="table" hidden><small>EVIDENCE TABLE / 03</small><h2>טבלת ראיות מובנית</h2>
+<p>כל ערך חולץ על ידי AI מתוך הטקסט שנשלח, עם ציטוט. ✓ = הציטוט נמצא מילה במילה במקור. ⚠ = הציטוט לא נמצא, ולכן אין לסמוך על הערך. ריחוף או מיקוד בתא מציגים את הציטוט. הערכת איכות המחקר היא שיפוט של AI ולא הערכת מומחה.</p>
+<div class="bar"><select id="tAge" aria-label="סינון גיל"><option value="">כל הגילים</option><option value="pediatric">ילדים ובני נוער</option><option value="adult">מבוגרים</option><option value="mixed">מעורב</option><option value="unknown">לא ידוע</option></select>
+<label>מעקב מינימלי (חודשים) <input id="tFollow" type="number" min="0" step="1" class="short"></label>
+<input id="tText" placeholder="חיפוש חופשי בטבלה" aria-label="חיפוש חופשי בטבלה"><label><input type="checkbox" id="tVerified"> הסתרת ערכים שלא אומתו</label>
+<button id="exportCsv">ייצוא CSV</button></div>
+<p id="tableStatus" role="status"></p><div class="tablewrap"><table id="evidence"></table></div></section>
+
+<section id="analysis" hidden><small>SYNTHESIS / 04</small><h2>שולחן ההצלבה</h2><p>יישלחו ל־Google שאלת המחקר והטקסטים הציבוריים של המקורות שסומנו ״כלול בניתוח״ (2–15). כל טענה בדוח חייבת ציטוט מדויק; ציטוטים נבדקים אוטומטית מול המקור. ניסויים ומאמרים מקושרים נבדקים גם לפער בין מה שתוכנן ברישום לבין מה שדווח. אין לשלוח מידע רפואי אישי. השימוש עשוי להיות כרוך בעלות.</p>
+<p id="analysisQuestion"></p><p id="basketInfo"></p><button id="generate" class="primary">שליחה ל־Gemini והפקת דוח</button>
+<p id="analysisStatus" role="status"></p><article id="output" hidden></article><div class="bar"><button id="download" hidden>הורדת הדוח והמקורות כטקסט</button></div>
+<h3>דוחות שמורים בפרויקט</h3><div id="reportList"></div></section>
+
+<section id="alerts" hidden><small>MONITORING / 05</small><h2>התראות על פרסומים וניסויים חדשים</h2>
+<p>חיפוש שנשמר נבדק מחדש לפי דרישה. רשומה ״חדשה״ היא רשומה שלא הופיעה בבדיקות קודמות של אותו חיפוש — לא בהכרח פרסום חדש לגמרי.</p>
+<div class="bar"><button id="checkAlerts" class="primary">בדיקת כל החיפושים השמורים עכשיו</button></div>
+<p id="alertStatus" role="status"></p><div id="alertList"></div><div id="alertHits" class="grid"></div></section>
+
+<section id="clinician" hidden><small>SHARE / 06</small><h2>סיכום לשיחה עם הצוות המטפל</h2>
+<p>הסיכום מורכב רק מנתונים שאומתו בציטוט, מהדוח האחרון ומההערות שלכם. זהו חומר רקע לשיחה, לא המלצה טיפולית.</p>
+<div class="bar"><button id="buildSummary" class="primary">הפקת סיכום</button><button id="printSummary">הדפסה / שמירה כ־PDF</button><button id="downloadSummary">הורדה כקובץ HTML</button></div>
+<p id="summaryStatus" role="status"></p><article id="summary" hidden></article></section>
+
+<section id="settings" hidden><small>CONNECTION</small><h2>כספת המפתח וחיבור המודל</h2>
+<p>המפתח נשמר רק בדפדפן זה, מוצפן ב־AES-GCM עם מפתח הנגזר מסיסמת הכספת באמצעות PBKDF2. הסיסמה לא נשמרת. כשהכספת פתוחה, המפתח נמצא בזיכרון ונשלח ב־HTTPS רק ל־Google. ההצפנה אינה מגינה מפני הרחבה זדונית או מחשב שכבר נפרץ. המפתח אינו נכלל בגיבוי.</p>
+<label for="apiKey">מפתח Gemini API (בשמירה ראשונה בלבד)</label><input id="apiKey" type="password" dir="ltr" autocomplete="off">
+<label for="pass">סיסמת כספת מקומית (לפחות 12 תווים ביצירה)</label><input id="pass" type="password" autocomplete="off">
+<div class="bar"><button id="saveKey">הצפנה ושמירה</button><button id="unlock">פתיחת כספת</button><button id="lock">נעילה</button><button id="forget">מחיקת המפתח השמור</button></div>
+<p id="vaultState" role="status"></p><label for="model">מודל מבוקש: Gemini Flash 3.8</label><select id="model"><option value="">טרם אומתה זמינות בחשבון</option></select>
+<button id="models">בדיקת מודלים זמינים מול Google</button><p id="modelStatus" role="status"></p>
+<p>אם Flash 3.8 אינו ברשימה, פעולות AI חסומות עד לבחירה מפורשת של דגם זמין אחר. רענון הדף נועל את הכספת; הספרייה, הטבלה והדוחות נשמרים. אין שחזור סיסמה; אפשר למחוק את הכספת וליצור חדשה.</p></section>
+<div id="archive" hidden>
+<header><small>מחברת ראיות • מהדורת פתיחה • 19.11.2026</small>
+<h1>מה נשמר לאורך זמן ב־OCD?</h1>
+<p>ירידה בתסמינים, הפוגה מתחת לסף קליני וחזרה ללימודים, לעבודה או לקשרים חברתיים הן תוצאות שונות. גם הפוגה בבדיקת מעקב אינה מוכיחה שלא היו תקופות קשות בדרך או שלא תהיה הישנות.</p></header>
+<section><h2>חיפוש עדכני במאגרים</h2>
+<p>בחרו שאלת מחקר ופתחו את המאגרים זה לצד זה. הקישורים שולחים מונחי מחקר קבועים בלבד; אין להזין פרטים אישיים. התוצאות נפתחות באתר המקור ואינן מתווספות אוטומטית למחברת.</p>
+<label>שאלה <select id="topic">
+<option value="(remission OR relapse OR follow-up) AND (child OR adolescent)">מה ידוע על הפוגה והישנות בגיל צעיר?</option>
+<option value="(anxiety OR functioning OR quality of life) AND follow-up">האם גם החרדה והתפקוד משתפרים לאורך זמן?</option>
+<option value="neurofeedback">האם משוב מוחי מועיל מעבר למשוב דמה?</option>
+<option value="focused ultrasound">אילו התערבויות אולטרסאונד נחקרות?</option>
+<option value="(predictor OR biomarker) AND remission">אילו מדדים מנבאים הפוגה?</option>
+</select></label>
+<nav><a id="papers">מאמרים ב־PubMed לפי תאריך פרסום</a><a id="trials">ניסויים ב־ClinicalTrials.gov</a><a href="https://trialsearch.who.int/">חיפוש משלים במאגר העולמי של WHO</a></nav>
+<button id="load" type="button">הצגת 10 רישומי הניסוי שעודכנו לאחרונה לשאלה זו</button>
+<p id="status" role="status"></p><div id="found"></div>
+</section>
+<section><h2>השוואת מקורות שנבדקו</h2>
+<label>הצגה לפי אוכלוסייה <select id="age"><option value="">הכול</option><option value="y">ילדים ונוער</option><option value="a">מבוגרים</option><option value="u">לא סווג לפי גיל</option></select></label>
+<article data-group="y"><small>ילדים ונוער • מעקב רב־מרכזי • ארצות נורדיות</small><h3>NordLOTS: הפוגה כעבור שלוש שנים</h3>
+<p>269 ילדים ובני נוער התחילו טיפול קוגניטיבי־התנהגותי; מי שלא הגיבו הוגרלו להמשך טיפול זה או לסרטרלין. בניתוח לפי כוונה לטפל, 73% היו בהפוגה כעבור שלוש שנים (עד 10 נקודות בסולם CY-BOCS). זהו נתון קבוצתי, לא תחזית אישית או מדידה של חרדה בנפרד.</p>
+<p><a href="https://pubmed.ncbi.nlm.nih.gov/30768383/">תוצאות המעקב</a> · <a href="https://www.isrctn.com/ISRCTN66385119">רישום הניסוי שמצוין במאמר</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/36265194/">ניתוח נוסף מתוך NordLOTS</a>. שני המאמרים נשענים על אותה תוכנית מחקר ואינם שתי ראיות בלתי תלויות.</p></article>
+<article data-group="a"><small>מבוגרים • ניסוי אקראי כפול־סמיות • ארה״ב</small><h3>משוב מוחי בזמן סריקת fMRI</h3>
+<p>36 משתתפים סיימו את האימון, 18 בכל קבוצה. הירידה בתסמיני OCD הייתה מעט גדולה יותר עם משוב אמיתי מאשר עם משוב דמה. לא נמצא הבדל מובהק בשליטה באזור המוח שנבדק; המנגנון המשוער לא הוכח.</p>
+<p><a href="https://pubmed.ncbi.nlm.nih.gov/37722238/">מאמר התוצאות</a> מציין את <a href="https://clinicaltrials.gov/study/NCT02206945">הניסוי NCT02206945</a>. ברישום הוגדר גיל 18–65 ומדד ראשי כארבעה ימים אחרי ההתערבות. אין להסיק מכך הפוגה לשנים או יעילות בקטינים.</p></article>
+<article data-group="a"><small>מבוגרים מגיל 21 • רישום ניסוי • בריטניה</small><h3>גירוי מוחי באולטרסאונד ממוקד</h3>
+<p>ב־<a href="https://clinicaltrials.gov/study/NCT06722339">TUS-OCD</a> המדד הראשי הוא הופעת תופעות לוואי. בעת הבדיקה לא הועלו תוצאות לרישום. השאלה הראשית היא בטיחות, לא הפוגה; היעדר תוצאות ברישום אינו תוצאה שלילית ואינו הוכחה לבטיחות.</p></article>
+<article data-group="u"><small>OCD עמיד לטיפול • גיל לא סווג כאן • קנדה</small><h3>ניתוח באולטרסאונד אינו זהה לגירוי באולטרסאונד</h3>
+<p>ב<a href="https://pubmed.ncbi.nlm.nih.gov/39187171/">ניסוי ניתוחי פתוח בשלב 1</a> נכללו 15 משתתפים עם OCD. אחרי שנה ציון התסמינים ירד ב־35% בממוצע; אין פירוש הדבר ש־35% החלימו. מדובר ביצירת נגע מכוון ובלתי הפיך, ללא קבוצת ביקורת.</p>
+<p><a href="https://pubmed.ncbi.nlm.nih.gov/40496675/">הערכת הטכנולוגיה של Ontario Health משנת 2025</a> מצאה שתי סדרות מקרים קטנות ודירגה את ודאות הראיות כנמוכה מאוד. לא מחברים סקירה וניסוי כאילו היו מדגמים נפרדים, ולא מעבירים ממצאים מההליך הניתוחי לניסוי הגירוי הבריטי.</p></article>
+</section>
+<section><h2>איך מרחיבים את המחקר</h2><ol>
+<li>לתעד מאגר, שאילתה ותאריך. לחפש גם ניסויים שהופסקו או שלא פרסמו תוצאות, ולא רק כותרות על הצלחה.</li>
+<li>לקשר מאמר לניסוי לפי מזהה רישום מפורש; לא לפי דמיון בכותרת בלבד. להשוות את מדד התוצאה ואת מועד המדידה שהוגדרו מראש לאלה שדווחו בפועל.</li>
+<li>לרשום לכל קבוצה: גיל, חומרת בסיס, מה ניתן במקביל, קבוצת השוואה, מספר שהתחילו ושסיימו, נזקים ומשך המעקב. שדה שלא דווח מסומן ״לא ידוע״, לא אפס.</li>
+<li>לתעד בנפרד חומרת OCD, חרדה, תפקוד והישנות. לחפש גם תוצאות לאחר שנה ושנתיים ושחזור בידי קבוצה עצמאית. קשר סטטיסטי אינו הוכחה לסיבה או להתאמת טיפול לאדם מסוים.</li>
+</ol><p>זו נקודת פתיחה נבחרת, לא סקירה שיטתית מלאה ולא כלי לקבלת החלטות טיפוליות.</p></section>
+</div></main>
+<script>
+const topic=document.querySelector('#topic'), age=document.querySelector('#age');
+let requestVersion=0;
+function updateSearch(){
+  requestVersion++;
+  document.querySelector('#found').replaceChildren();document.querySelector('#status').textContent='';
+  document.querySelector('#load').disabled=false;
+  const pub=new URL('https://pubmed.ncbi.nlm.nih.gov/');
+  pub.searchParams.set('term','"obsessive-compulsive disorder" AND ('+topic.value+')');
+  pub.searchParams.set('sort','date');
+  const ct=new URL('https://clinicaltrials.gov/search');
+  ct.searchParams.set('cond','Obsessive-Compulsive Disorder');
+  ct.searchParams.set('term',topic.value);
+  document.querySelector('#papers').href=pub.href;
+  document.querySelector('#trials').href=ct.href;
+}
+function filterAge(){for(const item of document.querySelectorAll('[data-group]')) item.hidden=!!age.value && item.dataset.group!==age.value;}
+topic.addEventListener('change',updateSearch);age.addEventListener('change',filterAge);
+updateSearch();filterAge();
+function sourceLink(label,url){
+  const a=document.createElement('a');a.textContent=label;a.href=url;return a;
+}
+document.querySelector('#load').addEventListener('click',async()=>{
+  const version=++requestVersion, button=document.querySelector('#load'), status=document.querySelector('#status'), found=document.querySelector('#found');
+  found.replaceChildren();button.disabled=true;status.textContent='טוען רישומים…';
+  const url=new URL('https://clinicaltrials.gov/api/v2/studies');
+  url.search=new URLSearchParams({'query.cond':'Obsessive-Compulsive Disorder','query.term':topic.value,sort:'LastUpdatePostDate:desc',pageSize:'10',fields:'NCTId,BriefTitle,MinimumAge,MaximumAge,PrimaryOutcomeMeasure,PrimaryOutcomeTimeFrame,Reference,LastUpdatePostDate,HasResults'});
+  const controller=new AbortController(), timer=setTimeout(()=>controller.abort(),20000);
+  try{
+    const response=await fetch(url,{signal:controller.signal});
+    if(!response.ok)throw Error(String(response.status));
+    const data=await response.json();
+    if(version!==requestVersion)return;
+    for(const s of data.studies){
+      const p=s.protocolSection,id=p.identificationModule.nctId;
+      const item=document.createElement('article');
+      item.append(sourceLink(p.identificationModule.briefTitle+' · '+id,'https://clinicaltrials.gov/study/'+encodeURIComponent(id)));
+      const note=document.createElement('p'), age=p.eligibilityModule;
+      note.textContent='גיל מינימום: '+(age?.minimumAge||'לא צוין')+' | גיל מקסימום: '+(age?.maximumAge||'לא צוין')+' | עדכון: '+(p.statusModule?.lastUpdatePostDateStruct?.date||'לא צוין')+' | '+(s.hasResults?'הועלו תוצאות לרישום':'לא הועלו תוצאות לרישום');item.append(note);
+      for(const o of p.outcomesModule?.primaryOutcomes||[]){
+        const line=document.createElement('p');line.textContent='מדד ראשי מתוכנן: '+o.measure+' · '+(o.timeFrame||'מועד לא צוין');item.append(line);
+      }
+      const refs=(p.referencesModule?.references||[]).filter(r=>r.type==='RESULT' && /^\d+$/.test(r.pmid));
+      item.append(refs.length?'מאמרים שסומנו ברישום כפרסומי תוצאות: ':'אין ברישום קישור מסווג למאמר תוצאות עם מזהה PubMed. ייתכן שקיים פרסום שלא קושר.');
+      for(const r of refs)item.append(sourceLink(r.pmid,'https://pubmed.ncbi.nlm.nih.gov/'+r.pmid+'/'),' ');
+      found.append(item);
+    }
+    status.textContent='מספר רשומות שהוצגו: '+data.studies.length+'. מועד עדכון אינו מועד פרסום תוצאות. מסנן הגיל של המחברת אינו חל על החיפוש החי.';
+  }catch(error){
+    if(version===requestVersion){found.replaceChildren();status.textContent='טעינת הרישומים נכשלה. אפשר לפתוח את החיפוש ישירות בקישור ClinicalTrials.gov שלמעלה. ('+error.message+')';}
+  }finally{clearTimeout(timer);if(version===requestVersion)button.disabled=false;}
+});
+</script>
+<script src="store.js"></script>
+<script src="sources.js"></script>
+<script src="lab.js"></script>
+</html>
