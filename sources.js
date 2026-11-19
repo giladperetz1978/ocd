@@ -10,7 +10,8 @@
   async function http(url, options = {}, timeout = 60000, retry = true) {
     let res;
     try {
-      res = await fetch(url, {credentials: 'omit', referrerPolicy: 'no-referrer', redirect: 'error', signal: AbortSignal.timeout(timeout), ...options});
+      // no-cache: a response cached for another origin (e.g. the local file copy) may carry the wrong CORS header.
+      res = await fetch(url, {credentials: 'omit', referrerPolicy: 'no-referrer', redirect: 'error', cache: 'no-cache', signal: AbortSignal.timeout(timeout), ...options});
     } catch (e) {
       fail(e.name === 'TimeoutError' ? 'תם הזמן להמתנה לשרת' : 'שגיאת רשת');
     }
